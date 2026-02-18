@@ -8,7 +8,7 @@ load_dotenv()
 API_KEY = os.getenv("GECKO_API_KEY")
 
 endpoint = "https://api.coingecko.com/api/v3/simple/price"
-params = {"ids": "bitcoin,ethereum,solana", "vs_currencies": "usd", "include_last_updated_at": "true"}
+params = {"ids": "bitcoin,ethereum,solana", "vs_currencies": "eur", "include_last_updated_at": "true"}
 headers = {"x-cg-demo-api-key": API_KEY} if API_KEY else {}
 
 r = requests.get(endpoint, params=params, headers=headers, timeout=30)
@@ -24,7 +24,8 @@ conn_str = (
 
 sql = """
 INSERT INTO bronze.coingecko_raw (endpoint, request_params, payload, payload_hash)
-VALUES (%s, %s::jsonb, %s::jsonb, %s);
+VALUES (%s, %s::jsonb, %s::jsonb, %s)
+ON CONFLICT (payload_hash) DO NOTHING;
 """
 
 with psycopg.connect(conn_str) as conn:
